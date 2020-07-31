@@ -8,7 +8,8 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 3. `mkdir build/`
 4. `cd build`
 5. `cmake ../.`
-6. `make`
+6. `make seq_bellman` - Sequential Bellman Ford for the sample graph below
+7. `make par_bellman` - Parallel Bellman Ford on GPU 
 
 ## Bellman Ford
 Sequential implementation of Bellman ford can be found in `bellman.cpp`. It uses the below sample graph in CSR format.
