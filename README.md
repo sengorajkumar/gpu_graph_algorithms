@@ -1,4 +1,4 @@
-# Single Source Shortest Path Alogirthms on GPU using CUDA
+# Single Source Shortest Path Algorithms on GPU using CUDA
 Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 
 ## Compiling the project
