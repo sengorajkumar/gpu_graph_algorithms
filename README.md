@@ -17,3 +17,10 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 * Both versions use the below sample graph in CSR format.
 
 ![Sample_Graph_For_Bellman](https://user-images.githubusercontent.com/48846576/89080545-cb4dba00-d34e-11ea-8dbd-6e7f4b897bb5.png)
+
+##### Shortest Path : `1 -> 4 -> 3 -> 2 -> 5`
+- from 1 to 1 = 0, predecessor = 0
+- from 1 to 4 = 7, predecessor = 1
+- from 1 to 3 = 4, predecessor = 4
+- from 1 to 2 = 2, predecessor = 3
+- from 1 to 5 = -2, predecessor = 2
