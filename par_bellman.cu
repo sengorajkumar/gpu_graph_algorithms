@@ -24,7 +24,10 @@ __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E,
             int du = d_out_D[index];
             int dv = d_out_D[d_in_E[j]];
             int newDist = du + w;
-            if (du == MAX_VAL){ // 2147483647 + 5 becomes -2147483644
+            // Check if the distance is already set to max then just take the max since,
+            // Cuda implementation gives this when a number is added to already max value of int.
+            // E.g 2147483647 + 5 becomes -2147483644
+            if (du == MAX_VAL){
                 newDist = MAX_VAL;
             }
             printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
