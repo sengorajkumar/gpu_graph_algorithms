@@ -16,9 +16,18 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 * GPU implementation can be found in `par_bellman.cu`
 * Both versions use the below sample graph in CSR format.
 
+######Sample Graph:
 ![Sample_Graph_For_Bellman](https://user-images.githubusercontent.com/48846576/89080545-cb4dba00-d34e-11ea-8dbd-6e7f4b897bb5.png)
 
-##### Shortest Path : `1 -> 4 -> 3 -> 2 -> 5`
+###### CSR Representation:
+![CSR_Format](https://user-images.githubusercontent.com/48846576/89236974-ac9e2c00-d5b7-11ea-9996-dca858eb0535.jpg)
+
+- `V` : array of vertices of size `|V|`
+- `I` : array of starting index of the adjacency list of edges in `E` array. Size `|V+1|`. The last element stores `|E|`
+- `E` : array of edges `|E|`
+- `W` : array of weights `|W|`
+ 
+###### Shortest Path : `1 -> 4 -> 3 -> 2 -> 5`
 - from 1 to 1 = 0, predecessor = 0
 - from 1 to 4 = 7, predecessor = 1
 - from 1 to 3 = 4, predecessor = 4

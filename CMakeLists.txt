@@ -12,7 +12,7 @@
 #
 #
 cmake_minimum_required(VERSION 3.14)
-project(hw3_cuda LANGUAGES CXX CUDA)
+project(gpu_graph_algorithms LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 14)
 add_executable(seq_bellman bellman.cpp)
 add_executable(par_bellman par_bellman.cu)
