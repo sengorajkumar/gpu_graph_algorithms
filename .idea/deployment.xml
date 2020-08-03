@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="maverick2.tacc.utexas.edu" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="maverick2.tacc.utexas.edu">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home1/06362/rsengott/project/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>

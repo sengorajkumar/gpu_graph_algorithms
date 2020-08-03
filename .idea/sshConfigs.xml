@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" host="maverick2.tacc.utexas.edu" id="da9dfdf6-9ba1-440a-ad4c-a15e6fc08951" port="22" nameFormat="DESCRIPTIVE" username="rsengott" />
+    </configs>
+  </component>
+</project>

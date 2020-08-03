@@ -16,7 +16,7 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 * GPU implementation can be found in `par_bellman.cu`
 * Both versions use the below sample graph in CSR format.
 
-######Sample Graph:
+###### Sample Graph:
 ![Sample_Graph_For_Bellman](https://user-images.githubusercontent.com/48846576/89080545-cb4dba00-d34e-11ea-8dbd-6e7f4b897bb5.png)
 
 ###### CSR Representation:
