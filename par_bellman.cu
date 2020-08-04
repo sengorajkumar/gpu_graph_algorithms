@@ -34,7 +34,7 @@ __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E,
             if (du == MAX_VAL){
                 newDist = MAX_VAL;
             }
-            printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
+            //printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
 
             if (newDist < dv) {
                 atomicExch(&d_out_Di[d_in_E[j]],newDist);
@@ -46,24 +46,33 @@ __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E,
 
 __global__ void updateDistance(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi) {
     unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
-    if (d_out_D[index] > d_out_Di[index]) {
-        d_out_D[index] = d_out_Di[index];
+    if (index < N) {
+
+        if (d_out_D[index] > d_out_Di[index]) {
+            d_out_D[index] = d_out_Di[index];
+        }
+        if (d_out_P[index] != d_out_Pi[index]) {
+            d_out_P[index] = d_out_Pi[index];
+        }
+        d_out_Di[index] = d_out_D[index];
+        d_out_Pi[index] = d_out_P[index];
     }
-    if (d_out_P[index] != d_out_Pi[index]) {
-        d_out_P[index] = d_out_Pi[index];
-    }
-    d_out_Di[index] = d_out_D[index];
-    d_out_Pi[index] = d_out_P[index];
 }
 
 __global__ void updateIndexOfEdges(int N, int *d_in_V, int *d_in_E, int l, int r) {
     unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
 
+    if(index ==1){
+        printf("l=%d, r=%d\n",l,r);
+    }
     // This does binary search on the V array to find the index of each node in the Edge array (E) and replace the same with index
     // Based on the iterative binary search from : https://www.geeksforgeeks.org/binary-search/
     if (index < N) {
         while (l <= r) {
             int m = l + (r - l) / 2;
+            if(index == 1) {
+                printf("m = %d, d_in_E[index] =%d\n",m, d_in_E[index]);
+            }
             // Check if x is present at mid
             if (d_in_V[m] == d_in_E[index]) {
                 d_in_E[index] = m;
@@ -212,17 +221,37 @@ int main (int argc, char **argv) {
     cudaMemcpy(d_out_Di, D.data(), D.size() *sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_out_Pi, pred.data(), pred.size() *sizeof(int), cudaMemcpyHostToDevice);
 
-    updateIndexOfEdges<<<BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, E.size()-1);
+    //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0. But in the case of DIMACS vertex start from 1.
+    //E.size() - because we need to replace each E[i] with its index of V[i]
+    //0, V.size()-1 -for binary search of V array with each E[i] to find index
+    updateIndexOfEdges<<<BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, V.size()-1);
+    int *out_E_index = new int[E.size()];
+    cudaMemcpy(out_E_index, d_in_E, E.size()*sizeof(int), cudaMemcpyDeviceToHost);
+
+    const char *fname="../output/E_index.csv";
+    std::ofstream output(fname);
+    //std::ofstream output("../output/E_index.csv");
+    for(int i = 0; i < E.size(); ++i){
+        output << out_E_index[i];
+        if(i != E.size()-2){
+            output << ", ";
+        }
+    }
+    output << endl;
+    output.close();
+    free(out_E_index);
+
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start, 0);
     // Bellman ford
     for (int round = 1; round < V.size(); round++) {
-        cout<< "***** round = " << round << " ******* " << endl;
+        if(debug){
+            cout<< "***** round = " << round << " ******* " << endl;
+        }
         relax<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
         updateDistance<<<BLOCKS, BLOCK_SIZE>>>(N, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
-        cudaDeviceSynchronize();
     }
 
     cudaEventRecord(stop, 0);
@@ -250,7 +279,7 @@ int main (int argc, char **argv) {
     std::string token;
     while ((pos = file.find(delimiter)) != std::string::npos) {
         token = file.substr(0, pos);
-        std::cout << token << std::endl;
+        //std::cout << token << std::endl;
         file.erase(0, pos + delimiter.length());
     }
     //cout << file << endl;
