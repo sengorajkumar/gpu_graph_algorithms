@@ -6,7 +6,13 @@ int main(int argc, char **argv) {
         cout << "MODE - seq / cuda \n"
                 "FILE - Input file \n"
                 "BLOCK_SIZE - Number of threads per block for cuda \n"
-                "DEBUG - 1 or 0 to enable/disable extended debug messages on console" << endl;
+                "DEBUG - 1 or 0 to enable/disable extended debug messages on console\n"
+                "Program expects these CSV files based on FILE thats passed in the argument\n"
+                "    FILE_V.csv\n"
+                "    FILE_I.csv\n"
+                "    FILE_E.csv\n"
+                "    FILE_W.csv"
+                << endl;
         return -1;
     }
     std::string mode = argv[1];
