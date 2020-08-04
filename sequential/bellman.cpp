@@ -1,11 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <limits>
-#include <fstream>
-#include <string>
-
-using std::cout;
-using std::endl;
+#include "../gpu/main.h"
 
 void loadVector(const char *filename, std::vector<int> &vec)
 {
@@ -17,7 +10,28 @@ void loadVector(const char *filename, std::vector<int> &vec)
     }
     input.close();
 }
+void updateIndexOfEdges(std::vector<int> &V, std::vector<int> &E, int l, int r){
 
+    for (int index = 0; index < E.size(); index++) {
+        //cout << "Updating index of  E[index] " <<  E[index] << endl;
+        l=0; r=V.size()-1;
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            // Check if x is present at mid
+            if (V[m] == E[index]) {
+                E[index] = m;
+                break;
+            }
+            // If x greater, ignore left half
+            if (V[m] < E[index]) {
+                l = m + 1;
+            } else {        // If x is smaller, ignore right half
+                r = m - 1;
+            }
+        }
+        //cout << "index of  E[index] " <<  E[index] << endl;
+    }
+}
 void BellmanFord(std::string file){
 
     //std::vector<int> V = {1, 2, 3, 4, 5};
@@ -35,6 +49,8 @@ void BellmanFord(std::string file){
 
     std::vector<int> D(V.size(), std::numeric_limits<int>::max());
     std::vector<int> pred(V.size(), -1);
+
+    updateIndexOfEdges(V, E, 0, V.size()-1);
 
     D[0] = 0;
     pred[0] = 0;
@@ -63,14 +79,4 @@ void BellmanFord(std::string file){
         cout << "from " << V[0] << " to " << V[i] << " = " << D[i] << " predecessor = " << pred[i] << std::endl;
     }
 
-}
-
-int main(int argc, char **argv) {
-    if (argc < 2 ){
-        cout << "Input filename needs to be passed" << endl;
-        return -1;
-    }
-    std::string file=argv[1];
-    cout<< "Running sequential bellman ford" << endl;
-    BellmanFord(file);
 }
