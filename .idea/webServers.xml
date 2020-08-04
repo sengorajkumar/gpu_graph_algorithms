@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="01f5f1ab-9457-44b3-8194-1053c48fb808" name="maverick2.tacc.utexas.edu">
-        <fileTransfer accessType="SFTP" host="maverick2.tacc.utexas.edu" port="22" sshConfigId="da9dfdf6-9ba1-440a-ad4c-a15e6fc08951" sshConfig="rsengott@maverick2.tacc.utexas.edu:22 password">
+        <fileTransfer accessType="SFTP" host="maverick2.tacc.utexas.edu" port="22" sshConfigId="72798746-e162-4ab7-9acc-f2e894a68662" sshConfig="rsengott@maverick2.tacc.utexas.edu:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
