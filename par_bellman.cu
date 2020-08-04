@@ -12,7 +12,6 @@
 #include <string>
 #include <string.h>
 #include <ctime>
-#include <sstream>
 
 using std::cout;
 using std::endl;
@@ -62,17 +61,11 @@ __global__ void updateDistance(int N, int *d_in_V, int *d_in_I, int *d_in_E, int
 __global__ void updateIndexOfEdges(int N, int *d_in_V, int *d_in_E, int l, int r) {
     unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
 
-    if(index ==1){
-        printf("l=%d, r=%d\n",l,r);
-    }
     // This does binary search on the V array to find the index of each node in the Edge array (E) and replace the same with index
     // Based on the iterative binary search from : https://www.geeksforgeeks.org/binary-search/
     if (index < N) {
         while (l <= r) {
             int m = l + (r - l) / 2;
-            if(index == 1) {
-                printf("m = %d, d_in_E[index] =%d\n",m, d_in_E[index]);
-            }
             // Check if x is present at mid
             if (d_in_V[m] == d_in_E[index]) {
                 d_in_E[index] = m;
@@ -146,7 +139,7 @@ int main (int argc, char **argv) {
     }
     std::string file=argv[1];
     int BLOCK_SIZE = 16;
-    int debug;
+    int debug = 0;
     (argc == 3) ? BLOCK_SIZE=atoi(argv[2]) : BLOCK_SIZE=16;
     (argc == 4) ? debug=atoi(argv[3]) : debug=0;
     //input
@@ -221,29 +214,16 @@ int main (int argc, char **argv) {
     cudaMemcpy(d_out_Di, D.data(), D.size() *sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_out_Pi, pred.data(), pred.size() *sizeof(int), cudaMemcpyHostToDevice);
 
-    //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0. But in the case of DIMACS vertex start from 1.
+    //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0.
+    //But in the case of DIMACS vertex start from 1. so in the relax kernel index of the destination vertex is needed to update the D array.
     //E.size() - because we need to replace each E[i] with its index of V[i]
-    //0, V.size()-1 -for binary search of V array with each E[i] to find index
+    //0, V.size()-1 - for binary search of V array with each E[i] to find index
     updateIndexOfEdges<<<BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, V.size()-1);
-    int *out_E_index = new int[E.size()];
-    cudaMemcpy(out_E_index, d_in_E, E.size()*sizeof(int), cudaMemcpyDeviceToHost);
-
-    const char *fname="../output/E_index.csv";
-    std::ofstream output(fname);
-    //std::ofstream output("../output/E_index.csv");
-    for(int i = 0; i < E.size(); ++i){
-        output << out_E_index[i];
-        if(i != E.size()-2){
-            output << ", ";
-        }
-    }
-    output << endl;
-    output.close();
-    free(out_E_index);
 
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
+    cout << "Running Bellman Ford on GPU!" << endl;
     cudaEventRecord(start, 0);
     // Bellman ford
     for (int round = 1; round < V.size(); round++) {
@@ -256,6 +236,7 @@ int main (int argc, char **argv) {
 
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
+    cout << "Completed Bellman Ford on GPU!" << endl;
     float elapsedTime;
     cudaEventElapsedTime(&elapsedTime, start, stop);
 
@@ -279,13 +260,11 @@ int main (int argc, char **argv) {
     std::string token;
     while ((pos = file.find(delimiter)) != std::string::npos) {
         token = file.substr(0, pos);
-        //std::cout << token << std::endl;
         file.erase(0, pos + delimiter.length());
     }
-    //cout << file << endl;
     storeResult(("../output/" + file + "_SP.csv").c_str(),V, out_path, out_pred);
-
-   cout << "average time elapsed : " << elapsedTime << endl;
+    cout << "Results written to " << ("../output/" + file + "_SP.csv").c_str() << endl;
+    cout << "** average time elapsed : " << elapsedTime << " milli seconds** " << endl;
 
     free(out_pred);
     free(out_path);
