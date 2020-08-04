@@ -17,14 +17,14 @@
 #include <string.h>
 #include <ctime>
 #include <chrono>
+#include "utilities/utilities.h"
 
 using namespace std;
 using namespace std::chrono;
 using std::cout;
 using std::endl;
 
-void BellmanFord(std::string file);
-void loadVector(const char *filename, std::vector<int> &vec);
-void updateIndexOfEdges(std::vector<int> &V, std::vector<int> &E, int l, int r);
+void runBellmanFordSequential(std::string file);
+int runBellmanFordOnGPU(const char *file, int blockSize, int debug);
 
 #endif //GPU_GRAPH_ALGORITHMS_MAIN_H

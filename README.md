@@ -1,4 +1,4 @@
-# Single Source Shortest Path Algorithms on GPU using CUDA
+# Bellman Ford Single Source Shortest Path Algorithm on GPU using CUDA
 Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 
 ## Compiling the project
@@ -8,13 +8,18 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 3. `mkdir build/`
 4. `cd build`
 5. `cmake ../.`
-6. `make seq_bellman` - Sequential Bellman Ford for the sample graph below
-7. `make par_bellman` - Parallel Bellman Ford on GPU 
+6. `make` - Builds executable `bellman`
+7. `$ ./bellman seq ../input/simple.gr` - Runs sequential version of bellman ford
+8. `$ ./bellman cuda ../input/simple.gr 1024` - Runs cuda version of bellman ford
 
-## Bellman Ford
-* Sequential implementation of Bellman ford can be found in `bellman.cpp`. 
-* GPU implementation can be found in `par_bellman.cu`
-* Both versions use the below sample graph in CSR format.
+## Implementation Details
+* Folder `sequential` contains base sequential implementation of BellmanFord. 
+* Folder `gpu` contains cuda implementation of BellmanFord
+* Folder `utilities` contains common utility functions used by both the implementations 
+* Folder `parser`contains the parser utility to covert DIMACS graph files (`http://users.diag.uniroma1.it/challenge9/format.shtml#ss`) into CSR format
+* Folder `input` contains graph files in CSR format
+* `main.cpp` - Runs both sequential and cuda versions
+
 
 ###### Sample Graph:
 <div>

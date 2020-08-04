@@ -1,22 +1,5 @@
 #include "bellman.cuh"
-
-void loadVector(const char *filename, std::vector<int> &vec)
-{
-    std::ifstream input;
-    input.open(filename);
-    int num;
-    while ((input >> num) && input.ignore()) {
-        vec.push_back(num);
-    }
-    input.close();
-}
-
-void printVector(std::vector<int> &vec){
-    for(int i=0; i<vec.size(); i++){
-        cout<< vec[i] << " ";
-    }
-    cout<<endl;
-}
+#include "../main.h"
 
 void printCudaDevice(){
     int dev = 0;
@@ -32,58 +15,28 @@ void printCudaDevice(){
     }
 }
 
-void storeResult(const char *filename, std::vector<int> &V, int *D, int *P)
-{
-    std::ofstream output(filename);
-    output << "Shortest Path : " << endl;
-    for(int i = 0; i < V.size(); ++i)
-    {
-//        output << D[i] << ":" << P[i];
-//        if (i != size-1){
-//            output << ",";
-//        }
-        output << "from " << V[0] << " to " << V[i] << " = " << D[i] << " predecessor = " << P[i] << std::endl;
-    }
-    output.close();
-}
+int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
 
-int main (int argc, char **argv) {
-
-    if (argc < 2 ){
-        cout << "Input filename needs to be passed" << endl;
-        cout << "example : ./par_bellman ../input/sample.gr <block-size> <debug>" << endl;
-        cout << "block-size : optional param. Default 16" << endl;
-        cout << "debug : optional param. 1 or 0. Prints additional log messages to console. Default 0" << endl;
-        return -1;
-    }
-    std::string file=argv[1];
-    int BLOCK_SIZE = 16;
-    int debug = 0;
-    (argc == 3) ? BLOCK_SIZE=atoi(argv[2]) : BLOCK_SIZE=16;
-    (argc == 4) ? debug=atoi(argv[3]) : debug=0;
-    //input
-    //std::vector<int> V = {1, 2, 3, 4, 5};
-    //std::vector<int> I = {0, 2, 5, 6, 8, 10};
-    //std::vector<int> E = {2, 4, 3, 4, 5, 2, 3, 5, 1, 3}; // This E stores destination vertex for each edge from V[I[i]].. V[I[i+1]]
-    //std::vector<int> E = {1, 3, 2, 3, 4, 1, 2, 4, 0, 2}; // This E array stores index of destination vertex instead of actual vertex itself. So V[E[i]] is the vertex
-    //std::vector<int> W = {6, 7, 5, 8, -4, -2, -3, 9, 2, 7};
+    std::string inputFile=file;
+    int BLOCK_SIZE = blockSize;
+    int DEBUG = debug;
     int MAX_VAL = std::numeric_limits<int>::max();
 
     std::vector<int> V, I, E, W;
     //Load data from files
-    loadVector((file + "_V.csv").c_str(), V);
-    loadVector((file + "_I.csv").c_str(), I);
-    loadVector((file + "_E.csv").c_str(), E);
-    loadVector((file + "_W.csv").c_str(), W);
+    loadVector((inputFile + "_V.csv").c_str(), V);
+    loadVector((inputFile + "_I.csv").c_str(), I);
+    loadVector((inputFile + "_E.csv").c_str(), E);
+    loadVector((inputFile + "_W.csv").c_str(), W);
 
-    if(debug){
+    if(DEBUG){
         cout << "V = "; printVector(V); cout << endl;
         cout << "I = "; printVector(I); cout << endl;
         cout << "E = "; printVector(E); cout << endl;
         cout << "W = "; printVector(W); cout << endl;
     }
 
-    //output
+    //output. Rewrite this part with Cuda kernel
     std::vector<int> D(V.size(), MAX_VAL); //Shortest path of V[i] from source
     std::vector<int> pred(V.size(), -1); // Predecessor vetex of V[i]
 
@@ -146,7 +99,7 @@ int main (int argc, char **argv) {
 
     // Bellman ford
     for (int round = 1; round < V.size(); round++) {
-        if(debug){
+        if(DEBUG){
             cout<< "***** round = " << round << " ******* " << endl;
         }
         relax<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
@@ -165,7 +118,7 @@ int main (int argc, char **argv) {
     cudaMemcpy(out_path, d_out_D, D.size()*sizeof(int), cudaMemcpyDeviceToHost);
     cudaMemcpy(out_pred, d_out_P, pred.size()*sizeof(int), cudaMemcpyDeviceToHost);
 
-    if(debug) {
+    if(DEBUG) {
         cout << "Shortest Path : " << endl;
         for (int i = 0; i < D.size(); i++) {
             cout << "from " << V[0] << " to " << V[i] << " = " << out_path[i] << " predecessor = " << out_pred[i]
@@ -177,12 +130,12 @@ int main (int argc, char **argv) {
     std::string delimiter = "/";
     size_t pos = 0;
     std::string token;
-    while ((pos = file.find(delimiter)) != std::string::npos) {
-        token = file.substr(0, pos);
-        file.erase(0, pos + delimiter.length());
+    while ((pos = inputFile.find(delimiter)) != std::string::npos) {
+        token = inputFile.substr(0, pos);
+        inputFile.erase(0, pos + delimiter.length());
     }
-    storeResult(("../output/" + file + "_SP.csv").c_str(),V, out_path, out_pred);
-    cout << "Results written to " << ("../output/" + file + "_SP.csv").c_str() << endl;
+    storeResult(("../output/" + inputFile + "_SP.csv").c_str(),V, out_path, out_pred);
+    cout << "Results written to " << ("../output/" + inputFile + "_SP.csv").c_str() << endl;
     cout << "** average time elapsed : " << elapsedTime << " milli seconds** " << endl;
 
     free(out_pred);
@@ -195,4 +148,5 @@ int main (int argc, char **argv) {
     cudaFree(d_out_P);
     cudaFree(d_out_Di);
     cudaFree(d_out_Pi);
+    return 0;
 }

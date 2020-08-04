@@ -23,4 +23,6 @@
 using std::cout;
 using std::endl;
 
+void printCudaDevice();
+
 #endif //GPU_GRAPH_ALGORITHMS_BELLMAN_CUH

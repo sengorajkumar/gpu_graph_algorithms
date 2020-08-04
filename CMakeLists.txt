@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 project(gpu_graph_algorithms LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 14)
-add_executable(seq_bellman sequential/bellman.cpp gpu/main.cpp gpu/main.h)
-add_executable(par_bellman gpu/kernels.cu gpu/kernels.cuh gpu/bellman.cu gpu/bellman.cuh)
+#add_executable(seq_bellman sequential/bellman.cpp main.cpp main.h)
+add_executable(bellman gpu/kernels.cu gpu/kernels.cuh gpu/bellman.cu gpu/bellman.cuh sequential/bellman.cpp main.cpp main.h utilities/utilities.cpp utilities/utilities.h)

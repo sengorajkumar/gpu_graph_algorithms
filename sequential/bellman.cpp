@@ -1,15 +1,5 @@
-#include "../gpu/main.h"
+#include "../main.h"
 
-void loadVector(const char *filename, std::vector<int> &vec)
-{
-    std::ifstream input;
-    input.open(filename);
-    int num;
-    while ((input >> num) && input.ignore()) {
-        vec.push_back(num);
-    }
-    input.close();
-}
 void updateIndexOfEdges(std::vector<int> &V, std::vector<int> &E, int l, int r){
 
     for (int index = 0; index < E.size(); index++) {
@@ -32,7 +22,7 @@ void updateIndexOfEdges(std::vector<int> &V, std::vector<int> &E, int l, int r){
         //cout << "index of  E[index] " <<  E[index] << endl;
     }
 }
-void BellmanFord(std::string file){
+void runBellmanFordSequential(std::string file){
 
     //std::vector<int> V = {1, 2, 3, 4, 5};
     //std::vector<int> I = {0, 2, 5, 6, 8, 10};
@@ -40,6 +30,7 @@ void BellmanFord(std::string file){
     //std::vector<int> E = {1, 3, 2, 3, 4, 1, 2, 4, 0, 2}; // This E array stores index of destination vertex instead of actual vertex itself. So V[E[i]] is the vertex
     //std::vector<int> W = {6, 7, 5, 8, -4, -2, -3, 9, 2, 7};
 
+    cout << "Running BellmanFord Sequential for : " << file << endl;
     std::vector<int> V, I, E, W;
     //Load data from files
     loadVector((file + "_V.csv").c_str(), V);
