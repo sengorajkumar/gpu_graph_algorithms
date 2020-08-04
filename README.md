@@ -47,7 +47,7 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
     - `USA-road-d.NY.gr_V.csv` - Contains V array (as depicted in figure above)
     - `USA-road-d.NY.gr_I.csv` - Contains I array
     - `USA-road-d.NY.gr_E.csv` - Contains E array
-    - `USA-road-d.NY.gr_W.csv` - Contains V array
+    - `USA-road-d.NY.gr_W.csv` - Contains W array
     - `USA-road-d.NY.gr_FROM.csv` & `USA-road-d.NY.gr_TO.csv`- Contains all edges of the graph where source is in FROM and destination vertex is in TO (Will be useful for version 2 stated below)
     
 | File | Nodes | Edges |
