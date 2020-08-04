@@ -61,3 +61,7 @@ Implement and study the performance in three different flavors of the algorithm
 - [x] Version 1 - One thread to each vertex (to relax all outgoing edges of each vertex)
 - [ ] Version 2 - One thread for each edge. Slight variation of version 1
 - [ ] Version 3 - Have a boolean flag to check whether to continue till V-1 rounds or terminate early.
+
+## References
+- Agarwal, Pankhari, Dutta, Maitreyee - New Approach of Bellman Ford Algorithm on GPU using Compute Unified Design Architecture (CUDA)
+- 
