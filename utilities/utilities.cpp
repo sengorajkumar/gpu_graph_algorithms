@@ -32,3 +32,8 @@ void storeResult(const char *filename, std::vector<int> &V, int *D, int *P)
     }
     output.close();
 }
+
+bool isValidFile (const std::string& filename) {
+    ifstream file(filename.c_str());
+    return file.good();
+}

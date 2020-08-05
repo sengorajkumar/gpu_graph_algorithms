@@ -19,14 +19,23 @@ int main(int argc, char **argv) {
     std::string file;
     int debug;
     int BLOCK_SIZE;
-    if(argc == 3){
+    if(argv[2] != NULL){
         file = argv[2];
+        //Check if all CSR files are present
+        if(!isValidFile(file + "_V.csv") ||
+           !isValidFile(file + "_I.csv") ||
+           !isValidFile(file + "_E.csv") ||
+           !isValidFile(file + "_W.csv")){
+            cout << "One or more CSR files missing" << endl;
+            return -1;
+        }
+
     }
-    if(argc == 4){
+    if(argv[3] != NULL){
         BLOCK_SIZE = atoi(argv[3]);
     }
-    if(argc == 5){
-        debug = atoi(argv[3]);
+    if(argv[4] != NULL){
+        debug = atoi(argv[4]);
     }
 
     (BLOCK_SIZE == 0) ? 512 : BLOCK_SIZE; // Set default to 512 threads

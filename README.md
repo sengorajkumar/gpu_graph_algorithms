@@ -16,7 +16,7 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 * Folder `sequential` contains base sequential implementation of BellmanFord. 
 * Folder `gpu` contains cuda implementation of BellmanFord
 * Folder `utilities` contains common utility functions used by both the implementations 
-* Folder `parser`contains the parser utility to covert DIMACS graph files (`http://users.diag.uniroma1.it/challenge9/format.shtml#ss`) into CSR format
+* Folder `parser`contains the parser utility to covert DIMACS graph files (`http://users.diag.uniroma1.it/challenge9/format.shtml#ss`) into CSR format. Run parser using `$ ./parser ./input/USA-road-d.NY.gr` command
 * Folder `input` contains graph files in CSR format
 * `main.cpp` - Runs both sequential and cuda versions
 
