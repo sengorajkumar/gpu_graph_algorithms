@@ -134,7 +134,7 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
         token = inputFile.substr(0, pos);
         inputFile.erase(0, pos + delimiter.length());
     }
-    storeResult(("../output/" + inputFile + "_SP.csv").c_str(),V, out_path, out_pred);
+    storeResult(("../output/" + inputFile + "_SP_cuda.csv").c_str(),V, out_path, out_pred);
     cout << "Results written to " << ("../output/" + inputFile + "_SP.csv").c_str() << endl;
     cout << "** average time elapsed : " << elapsedTime << " milli seconds** " << endl;
 

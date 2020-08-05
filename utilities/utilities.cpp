@@ -22,6 +22,17 @@ void printVector(std::vector<int> &vec){
     cout<<endl;
 }
 
+std::string makeOutputFileName(std::string inputFile){
+    std::string delimiter = "/";
+    size_t pos = 0;
+    std::string token;
+    while ((pos = inputFile.find(delimiter)) != std::string::npos) {
+        token = inputFile.substr(0, pos);
+        inputFile.erase(0, pos + delimiter.length());
+    }
+    return inputFile;
+}
+
 void storeResult(const char *filename, std::vector<int> &V, int *D, int *P)
 {
     std::ofstream output(filename);

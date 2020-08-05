@@ -22,13 +22,7 @@ void updateIndexOfEdges(std::vector<int> &V, std::vector<int> &E, int l, int r){
         //cout << "index of  E[index] " <<  E[index] << endl;
     }
 }
-void runBellmanFordSequential(std::string file){
-
-    //std::vector<int> V = {1, 2, 3, 4, 5};
-    //std::vector<int> I = {0, 2, 5, 6, 8, 10};
-    //std::vector<int> E = {2, 4, 3, 4, 5, 2, 3, 5, 1, 3}; // This E stores destination vertex for each edge from V[I[i]].. V[I[i+1]]
-    //std::vector<int> E = {1, 3, 2, 3, 4, 1, 2, 4, 0, 2}; // This E array stores index of destination vertex instead of actual vertex itself. So V[E[i]] is the vertex
-    //std::vector<int> W = {6, 7, 5, 8, -4, -2, -3, 9, 2, 7};
+void runBellmanFordSequential(std::string file, int debug){
 
     cout << "Running BellmanFord Sequential for : " << file << endl;
     std::vector<int> V, I, E, W;
@@ -48,7 +42,9 @@ void runBellmanFordSequential(std::string file){
 
     // Bellman ford
     for (int round = 1; round < V.size(); round++) {
-        cout<< "***** round = " << round << " ******* " << endl;
+        if(debug){
+            cout<< "***** round = " << round << " ******* " << endl;
+        }
         for (int i = 0; i < I.size()-1 ; i++) {
             for (int j = I[i]; j < I[i + 1]; j++) {
                 int u = V[i];
@@ -65,9 +61,13 @@ void runBellmanFordSequential(std::string file){
         }
     }
 
-    cout << "Shortest Path : " << endl;
-    for (int i = 0; i < V.size(); i++) {
-        cout << "from " << V[0] << " to " << V[i] << " = " << D[i] << " predecessor = " << pred[i] << std::endl;
-    }
+    storeResult(("../output/" + makeOutputFileName(file) + "_SP_Sequential.csv").c_str(), V,D.data(),pred.data());
+    cout << "Results written to " << ("../output/" + makeOutputFileName(file) + "_SP_Sequential.csv").c_str() << endl;
 
+    if (debug) {
+        cout << "Shortest Path : " << endl;
+        for (int i = 0; i < V.size(); i++) {
+            cout << "from " << V[0] << " to " << V[i] << " = " << D[i] << " predecessor = " << pred[i] << std::endl;
+        }
+    }
 }

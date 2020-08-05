@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J run_bellman           # Job name
-#SBATCH -o run_bellman.o%j       # Name of stdout output file
-#SBATCH -e run_bellman.e%j       # Name of stderr error file
+#SBATCH -o cuda_out_%j       # Name of stdout output file
+#SBATCH -e cuda_err_%j       # Name of stderr error file
 #SBATCH -p gtx          # Queue (partition) name
 #SBATCH -N 1               # Total # of nodes (must be 1 for serial)
 #SBATCH -n 1               # Total # of mpi tasks (should be 1 for serial)
@@ -12,5 +12,10 @@
 cd /home1/06362/rsengott/project/build
 pwd
 date
-./bellman cuda ../input/USA-road-d.FLA.gr 1024 0
+if [ $# -gt 0 ]; then
+  echo "Input file : $1"
+  echo "BLOCK Size : $2"
+  ./bellman cuda $1 $2 0
+fi
 date
+#Submit a job using command $sbatch run_bellman_cuda.sh ../input/USA-road-d.NY.gr 1024

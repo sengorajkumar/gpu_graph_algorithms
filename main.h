@@ -24,7 +24,7 @@ using namespace std::chrono;
 using std::cout;
 using std::endl;
 
-void runBellmanFordSequential(std::string file);
+void runBellmanFordSequential(std::string file, int debug);
 int runBellmanFordOnGPU(const char *file, int blockSize, int debug);
 
 #endif //GPU_GRAPH_ALGORITHMS_MAIN_H

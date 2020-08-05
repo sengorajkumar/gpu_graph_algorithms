@@ -40,7 +40,7 @@ func main() {
 	s := strings.Split(fullname, "/")
 	filename := s[len(s)-1]
 	g := LoadGraphV1(fullname)
-	fmt.Println("File loaded")
+	fmt.Println("File loaded ", fullname)
 
 	vertices := g.nodes.elements
 
@@ -77,12 +77,12 @@ func main() {
 	I = append(I, g.NumEdges())
 	fmt.Println("num edges : ", counter)
 	fmt.Println("Writing to files")
-	WriteData("/raj/UT-Masters/Summer2020/ParallelAlgorithms/term-project/parser/output/"+filename+"_V.csv", V)
-	WriteData("/raj/UT-Masters/Summer2020/ParallelAlgorithms/term-project/parser/output/"+filename+"_I.csv", I)
-	WriteData("/raj/UT-Masters/Summer2020/ParallelAlgorithms/term-project/parser/output/"+filename+"_E.csv", E)
-	WriteData("/raj/UT-Masters/Summer2020/ParallelAlgorithms/term-project/parser/output/"+filename+"_W.csv", W)
-	WriteData("/raj/UT-Masters/Summer2020/ParallelAlgorithms/term-project/parser/output/"+filename+"_FROM.csv", FROM)
-	WriteData("/raj/UT-Masters/Summer2020/ParallelAlgorithms/term-project/parser/output/"+filename+"_TO.csv", TO)
+	WriteData("/home1/06362/rsengott/project/parser/output/"+filename+"_V.csv", V)
+	WriteData("/home1/06362/rsengott/project/parser/output/"+filename+"_I.csv", I)
+	WriteData("/home1/06362/rsengott/project/parser/output/"+filename+"_E.csv", E)
+	WriteData("/home1/06362/rsengott/project/parser/output/"+filename+"_W.csv", W)
+	WriteData("/home1/06362/rsengott/project/parser/output/"+filename+"_FROM.csv", FROM)
+	WriteData("/home1/06362/rsengott/project/parser/output/"+filename+"_TO.csv", TO)
 	fmt.Println("****************** ")
 	fmt.Println("Summary 		: ")
 	fmt.Println("Size V  		: ", len(V))
