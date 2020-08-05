@@ -60,7 +60,7 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 | rand_1000   | 1000     | 5000    |
 | USA-road-d.NY     |  264,346       |  733,846     |
 | USA-road-d.COL     |  435,666       |  1,057,066     |
-| add few more random and road networks     |  -       |  -     |
+| USA-road-d.FLA.gr  |   1,070,376      |   2,712,798     |
     
 ## Bellman Ford GPU Implementation
 Implement and study the performance in three different flavors of the algorithm
