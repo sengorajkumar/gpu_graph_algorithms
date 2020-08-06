@@ -63,7 +63,7 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 |USA-road-d.CAL     |	1,890,815	|4,657,742|	764928|	12.75|	`sbatch run_bellman_cuda.sh ../input/USA-road-d.CAL.gr 1024`|
 |USA-road-d.E	    |3,598,623	|8,778,114|	2.88E+06|	47.94	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.E.gr 1024`  |  
 |rand_200k_4m.gr| 200k | 4 million | 225312 | 3.76 | `sbatch run_bellman_cuda.sh ../input/rand_200k_4m.gr 1024`|
-|rand_300k_6m.gr| 300k | 4 million | 561186 | 9.35 | `sbatch run_bellman_cuda.sh ../input/rand_300k_6m.gr 1024`|
+|rand_300k_6m.gr| 300k | 6 million | 561186 | 9.35 | `sbatch run_bellman_cuda.sh ../input/rand_300k_6m.gr 1024`|
 |rand_400k_8m.gr| 400k | 8 million | 1.06E+06 | 17.62 |`sbatch run_bellman_cuda.sh ../input/rand_400k_8m.gr 1024`|
 |rand_100k_10m.gr| 100k | 10 million | 478328 | 7.97 |`sbatch run_bellman_cuda.sh ../input/rand_100k_10m.gr 1024`|
 
