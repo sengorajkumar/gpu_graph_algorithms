@@ -55,13 +55,14 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
     - `USA-road-d.NY.gr_W.csv` - Contains W array
     - `USA-road-d.NY.gr_FROM.csv` & `USA-road-d.NY.gr_TO.csv`- Contains all edges of the graph where source is in FROM and destination vertex is in TO (Will be useful for version 2 stated below)
     
-| File | Nodes | Edges |
-| :---         |     :---:      |        :---: |
-| rand_1000   | 1000     | 5000    |
-| USA-road-d.NY     |  264,346       |  733,846     |
-| USA-road-d.COL     |  435,666       |  1,057,066     |
-| USA-road-d.FLA.gr  |   1,070,376      |   2,712,798     |
-    
+| File           |	nodes |	edges|	Time (Milli seconds)| Time(min)	|	TACC command |
+| :---          |   :---    |:---   |:---   |:---   |:---   |
+|USA-road-d.NY      |	264,346	|733,846	|17293.9|	0.29	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.NY.gr 1024`|
+|USA-road-d.COL     |	435,666	|1,057,066|	39291.9|	0.65|	`sbatch run_bellman_cuda.sh ../input/USA-road-d.COL.gr 1024`|
+|USA-road-d.FLA     |	1,070,376|	2,712,798|	229136|	3.82	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.FLA.gr 1024`|
+|USA-road-d.CAL     |	1,890,815	|4,657,742|	764928|	12.75|	`sbatch run_bellman_cuda.sh ../input/USA-road-d.CAL.gr 1024`|
+|USA-road-d.E	    |3,598,623	|8,778,114|	2.88E+06|	47.94	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.E.gr 1024`  |  
+
 ## Bellman Ford GPU Implementation
 Implement and study the performance in three different flavors of the algorithm
 - [x] Version 1 - One thread to each vertex (to relax all outgoing edges of each vertex)

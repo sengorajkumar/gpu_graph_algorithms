@@ -22,6 +22,12 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     int DEBUG = debug;
     int MAX_VAL = std::numeric_limits<int>::max();
 
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cout << "Running Bellman Ford on GPU!" << endl;
+    cudaEventRecord(start, 0);
+
     std::vector<int> V, I, E, W;
     //Load data from files
     loadVector((inputFile + "_V.csv").c_str(), V);
@@ -37,17 +43,12 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     }
 
     //output. Rewrite this part with Cuda kernel
-    std::vector<int> D(V.size(), MAX_VAL); //Shortest path of V[i] from source
-    std::vector<int> pred(V.size(), -1); // Predecessor vetex of V[i]
+    //std::vector<int> D(V.size(), MAX_VAL); //Shortest path of V[i] from source
+    //std::vector<int> pred(V.size(), -1); // Predecessor vetex of V[i]
 
     //Set source vertex and predecessor
-    D[0] = 0;
-    pred[0] = 0;
-
-    //int *in_V = V.data();
-    //int *in_I = I.data();
-    //int *in_E = E.data();
-    //int *in_W = W.data();
+    //D[0] = 0;
+    //pred[0] = 0;
 
     int N = I.size();
     int BLOCKS = 1;
@@ -70,10 +71,10 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     cudaMalloc((void**) &d_in_E, E.size() *sizeof(int));
     cudaMalloc((void**) &d_in_W, W.size() *sizeof(int));
 
-    cudaMalloc((void**) &d_out_D, D.size() *sizeof(int));
-    cudaMalloc((void**) &d_out_Di, D.size() *sizeof(int));
-    cudaMalloc((void**) &d_out_P, pred.size() *sizeof(int));
-    cudaMalloc((void**) &d_out_Pi, pred.size() *sizeof(int));
+    cudaMalloc((void**) &d_out_D, V.size() *sizeof(int));
+    cudaMalloc((void**) &d_out_Di, V.size() *sizeof(int));
+    cudaMalloc((void**) &d_out_P, V.size() *sizeof(int));
+    cudaMalloc((void**) &d_out_Pi, V.size() *sizeof(int));
 
     //copy to device memory
     cudaMemcpy(d_in_V, V.data(), V.size() *sizeof(int), cudaMemcpyHostToDevice);
@@ -81,16 +82,19 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     cudaMemcpy(d_in_E, E.data(), E.size() *sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_in_W, W.data(), W.size() *sizeof(int), cudaMemcpyHostToDevice);
 
-    cudaMemcpy(d_out_D, D.data(), D.size() *sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_out_P, pred.data(), pred.size() *sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_out_Di, D.data(), D.size() *sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_out_Pi, pred.data(), pred.size() *sizeof(int), cudaMemcpyHostToDevice);
+    int INIT_BLOCKS = (V.size() + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_D, MAX_VAL, true, 0, 0);
+    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, -1, true, 0, 0);
+    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Di, MAX_VAL, true, 0, 0);
+    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Pi, -1, true, 0, 0);
 
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cout << "Running Bellman Ford on GPU!" << endl;
-    cudaEventRecord(start, 0);
+    //
+    // initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), );
+    //cudaMemcpy(d_out_D, D.data(), D.size() *sizeof(int), cudaMemcpyHostToDevice);
+    //cudaMemcpy(d_out_P, pred.data(), pred.size() *sizeof(int), cudaMemcpyHostToDevice);
+    //cudaMemcpy(d_out_Di, D.data(), D.size() *sizeof(int), cudaMemcpyHostToDevice);
+    //cudaMemcpy(d_out_Pi, pred.data(), pred.size() *sizeof(int), cudaMemcpyHostToDevice);
+
     //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0.
     //But in the case of DIMACS vertex start from 1. so in the relax kernel index of the destination vertex is needed to update the D array.
     //E.size() - because we need to replace each E[i] with its index of V[i]
@@ -115,12 +119,12 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     int *out_path = new int[V.size()];
     int *out_pred = new int[V.size()];
 
-    cudaMemcpy(out_path, d_out_D, D.size()*sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(out_pred, d_out_P, pred.size()*sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(out_path, d_out_D, V.size()*sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(out_pred, d_out_P, V.size()*sizeof(int), cudaMemcpyDeviceToHost);
 
     if(DEBUG) {
         cout << "Shortest Path : " << endl;
-        for (int i = 0; i < D.size(); i++) {
+        for (int i = 0; i < V.size(); i++) {
             cout << "from " << V[0] << " to " << V[i] << " = " << out_path[i] << " predecessor = " << out_pred[i]
                  << std::endl;
         }
@@ -135,7 +139,7 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
         inputFile.erase(0, pos + delimiter.length());
     }
     storeResult(("../output/" + inputFile + "_SP_cuda.csv").c_str(),V, out_path, out_pred);
-    cout << "Results written to " << ("../output/" + inputFile + "_SP.csv").c_str() << endl;
+    cout << "Results written to " << ("../output/" + inputFile + "_SP_cuda.csv").c_str() << endl;
     cout << "** average time elapsed : " << elapsedTime << " milli seconds** " << endl;
 
     free(out_pred);

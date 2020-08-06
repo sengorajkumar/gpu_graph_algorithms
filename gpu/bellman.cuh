@@ -1,7 +1,3 @@
-//
-// Created by rajkumar sengottuvel on 8/4/20.
-//
-
 #ifndef GPU_GRAPH_ALGORITHMS_BELLMAN_CUH
 #define GPU_GRAPH_ALGORITHMS_BELLMAN_CUH
 #include "kernels.cuh"
@@ -19,6 +15,7 @@
 #include <string>
 #include <string.h>
 #include <ctime>
+#include "kernels.cuh"
 
 using std::cout;
 using std::endl;

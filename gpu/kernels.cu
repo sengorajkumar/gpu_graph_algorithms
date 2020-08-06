@@ -64,3 +64,14 @@ __global__ void updateIndexOfEdges(int N, int *d_in_V, int *d_in_E, int l, int r
         }
     }
 }
+
+__global__ void initializeArray(const int N, int *p, const int val, bool sourceDifferent, const int source, const int sourceVal){
+    int index = threadIdx.x + blockDim.x * blockIdx.x;
+
+    p[index] = val;
+    if(sourceDifferent){
+        if(index == source) {
+            p[index] = sourceVal;
+        }
+    }
+}
