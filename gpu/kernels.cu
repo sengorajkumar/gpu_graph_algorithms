@@ -1,9 +1,7 @@
 #include "kernels.cuh"
 
 __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi) {
-    unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
-
-    if (index < N - 1) {
+    for (int index = threadIdx.x + blockDim.x * blockIdx.x; index < N - 1; index += blockDim.x * gridDim.x) {
         for (int j = d_in_I[index]; j < d_in_I[index + 1]; j++) {
             int u = d_in_V[index];
             //int v = d_in_V[d_in_E[j]];
@@ -28,9 +26,7 @@ __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E,
 }
 
 __global__ void updateDistance(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi) {
-    unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
-    if (index < N) {
-
+    for (int index = threadIdx.x + blockDim.x * blockIdx.x; index < N; index += blockDim.x * gridDim.x) {
         if (d_out_D[index] > d_out_Di[index]) {
             d_out_D[index] = d_out_Di[index];
         }
@@ -43,11 +39,9 @@ __global__ void updateDistance(int N, int *d_in_V, int *d_in_I, int *d_in_E, int
 }
 
 __global__ void updateIndexOfEdges(int N, int *d_in_V, int *d_in_E, int l, int r) {
-    unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
-
+    for (int index = threadIdx.x + blockDim.x * blockIdx.x; index < N; index += blockDim.x * gridDim.x) {
     // This does binary search on the V array to find the index of each node in the Edge array (E) and replace the same with index
     // Based on the iterative binary search from : https://www.geeksforgeeks.org/binary-search/
-    if (index < N) {
         while (l <= r) {
             int m = l + (r - l) / 2;
             // Check if x is present at mid

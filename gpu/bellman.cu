@@ -52,7 +52,9 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
 
     int N = I.size();
     int BLOCKS = 1;
-    BLOCKS = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    //BLOCKS = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    // Fastest results currently seem to be at 256 blocks, and somewhere between 256 - 384 threads/block
+    BLOCKS = 256;
     printCudaDevice();
     cout << "Blocks : " << BLOCKS << " Block size : " << BLOCK_SIZE << endl;
 
