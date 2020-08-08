@@ -13,9 +13,13 @@ cd /home1/06362/rsengott/project/build
 pwd
 date
 if [ $# -gt 0 ]; then
-  echo "Input file : $1"
-  echo "Debug      : $2"
-  ./bellman seq $1 0 $2
+  echo "Mode       : $1"
+  echo "Input file : $2"
+  echo "BLOCKS     : $3"
+  echo "BLOCK Size : $4"
+  #./bellman cuda $1 $2 0
+  ./bellman $1 $2 $3 $4 0
+  #sbatch run_bellman_cuda.sh seq ../input/rand_200k_4m.gr 196 1024
 fi
 date
 

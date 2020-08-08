@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
     std::string file;
     int debug;
     int BLOCK_SIZE;
+    int BLOCKS;
     if(argv[2] != NULL){
         file = argv[2];
         //Check if all CSR files are present
@@ -32,12 +33,16 @@ int main(int argc, char **argv) {
 
     }
     if(argv[3] != NULL){
-        BLOCK_SIZE = atoi(argv[3]);
+        BLOCKS = atoi(argv[3]);
     }
     if(argv[4] != NULL){
-        debug = atoi(argv[4]);
+        BLOCK_SIZE = atoi(argv[4]);
+    }
+    if(argv[5] != NULL){
+        debug = atoi(argv[5]);
     }
 
+    (BLOCKS == 0) ? 4 : BLOCKS; // Set default to 4 blocks
     (BLOCK_SIZE == 0) ? 512 : BLOCK_SIZE; // Set default to 512 threads
     (debug == 0) ? 0 : 1;
 
@@ -52,4 +57,8 @@ int main(int argc, char **argv) {
     if(mode == "cuda"){
         runBellmanFordOnGPU(file.c_str(), BLOCK_SIZE,debug);
     }
+    if(mode == "cuda-stride"){
+        runBellmanFordOnGPUWithGridStride(file.c_str(), BLOCKS, BLOCK_SIZE, debug);
+    }
+
 }

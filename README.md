@@ -75,4 +75,5 @@ Implement and study the performance in three different flavors of the algorithm
 
 ## References
 - Agarwal, Pankhari, Dutta, Maitreyee - New Approach of Bellman Ford Algorithm on GPU using Compute Unified Design Architecture (CUDA)
-- 
+- https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
+- https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/
