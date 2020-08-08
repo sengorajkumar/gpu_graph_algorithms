@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
     std::string file;
     int debug;
     int BLOCK_SIZE;
+    int BLOCKS;
     if(argv[2] != NULL){
         file = argv[2];
         //Check if all CSR files are present
@@ -34,8 +35,13 @@ int main(int argc, char **argv) {
     if(argv[3] != NULL){
         BLOCK_SIZE = atoi(argv[3]);
     }
+    
     if(argv[4] != NULL){
-        debug = atoi(argv[4]);
+        BLOCKS = atoi(argv[4]);
+    }
+
+    if(argv[5] != NULL){
+        debug = atoi(argv[5]);
     }
 
     (BLOCK_SIZE == 0) ? 512 : BLOCK_SIZE; // Set default to 512 threads
@@ -47,9 +53,10 @@ int main(int argc, char **argv) {
         runBellmanFordSequential(file, debug);
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(stop - start);
-        cout << "Elapsed time : " << duration.count() << " milli seconds " << endl;
+        //cout << "Elapsed time : " << duration.count() << " milli seconds " << endl;
+        //cout << duration.count() << endl;
     }
     if(mode == "cuda"){
-        runBellmanFordOnGPU(file.c_str(), BLOCK_SIZE,debug);
+        runBellmanFordOnGPU(file.c_str(), BLOCK_SIZE, BLOCKS, debug);
     }
 }

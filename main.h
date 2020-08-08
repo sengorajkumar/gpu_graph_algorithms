@@ -25,6 +25,6 @@ using std::cout;
 using std::endl;
 
 void runBellmanFordSequential(std::string file, int debug);
-int runBellmanFordOnGPU(const char *file, int blockSize, int debug);
+int runBellmanFordOnGPU(const char *file, int blockSize, int blocks, int debug);
 
 #endif //GPU_GRAPH_ALGORITHMS_MAIN_H

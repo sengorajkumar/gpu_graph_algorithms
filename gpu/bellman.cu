@@ -15,10 +15,11 @@ void printCudaDevice(){
     }
 }
 
-int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
+int runBellmanFordOnGPU(const char *file, int blockSize, int blocks, int debug) {
 
     std::string inputFile=file;
     int BLOCK_SIZE = blockSize;
+    int BLOCKS = blocks;
     int DEBUG = debug;
     int MAX_VAL = std::numeric_limits<int>::max();
 
@@ -51,10 +52,7 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     //pred[0] = 0;
 
     int N = I.size();
-    int BLOCKS = 1;
-    //BLOCKS = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
     // Fastest results currently seem to be at 256 blocks, and somewhere between 256 - 384 threads/block
-    BLOCKS = 256;
     printCudaDevice();
     cout << "Blocks : " << BLOCKS << " Block size : " << BLOCK_SIZE << endl;
 
@@ -143,6 +141,7 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     storeResult(("../output/" + inputFile + "_SP_cuda.csv").c_str(),V, out_path, out_pred);
     cout << "Results written to " << ("../output/" + inputFile + "_SP_cuda.csv").c_str() << endl;
     cout << "** average time elapsed : " << elapsedTime << " milli seconds** " << endl;
+    cout << elapsedTime << endl;
 
     free(out_pred);
     free(out_path);
