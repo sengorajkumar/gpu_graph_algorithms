@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-blocks=(128 192 256 320 512 1024)
-blocksize=(32 64 128 128 160 192 224 256 512 1024)
+#blocks=(128 192 256 512 1024)
+#blocksize=(128 192 256 512 1024)
+blocks=(512 1024)
+blocksize=(512 1024)
 
 base="/work/07460/garlands/spss_cuda/USA-road-d"
 PS3="Please enter your choice: "
@@ -70,6 +72,6 @@ printf "\nRunning $opt\n"
 for block in "${blocks[@]}"; do
     for size in "${blocksize[@]}"; do
         result=$(./build/bellman cuda $region $block $size | tail -1)
-        printf "Blocks: $block\tBlocksize: $size\tTime: $result\n" | tee ./results/$opt-result.txt
+        printf "Blocks: $block\tBlocksize: $size\tTime: $result\n" | tee -a ./results/$opt-result.txt
     done
 done
