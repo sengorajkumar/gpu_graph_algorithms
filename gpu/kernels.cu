@@ -162,3 +162,68 @@ __global__ void initializeArrayWithGridStride(const int N, int *p, const int val
         }
     }
 }
+
+__global__ void initializeBooleanArrayWithGridStride(const int N, bool *p, const int val, bool sourceDifferent, const int source, const bool sourceVal){
+
+    unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
+    unsigned int stride = blockDim.x * gridDim.x;
+
+    for (int index = tid; index < N ; index += stride) {  // do stride
+        p[index] = val;
+        if(sourceDifferent){
+            if(index == source) {
+                p[index] = sourceVal;
+            }
+        }
+    }
+}
+
+// Only relax the outgoing edges if the vertex has lower distance based on the Flag
+__global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi, bool *d_Flag){
+    unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
+    unsigned int stride = blockDim.x * gridDim.x;
+
+    for (int index = tid; index < N - 1; index += stride){  // do index < N - 1 because nth element of I array points to the end of E array
+        if (d_Flag[index]) {
+            d_Flag[index] = false;
+            for (int j = d_in_I[index]; j < d_in_I[index + 1]; j++) {
+                int u = d_in_V[index];
+                int w = d_in_W[j];
+                int du = d_out_D[index];
+                int dv = d_out_D[d_in_E[j]];
+                int newDist = du + w;
+                // Check if the distance is already set to max then just take the max since,
+                // Cuda implementation gives this when a number is added to already max value of int.
+                // E.g 2147483647 + 5 becomes -2147483644
+                if (du == MAX_VAL) {
+                    newDist = MAX_VAL;
+                }
+                //printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
+
+                if (newDist < dv) {
+                    atomicExch(&d_out_Di[d_in_E[j]], newDist);
+                    atomicExch(&d_out_Pi[d_in_E[j]], u);
+                }
+            }
+        }
+    }
+}
+
+// Sets the flag to true if distance of vertex is changed hence all outgoing edges need to be relaxed in the next round
+__global__ void updateDistanceWithGridStrideV3(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P, int *d_out_Pi, bool *d_Flag) {
+    unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
+    unsigned int stride = blockDim.x * gridDim.x;
+
+    for (int index = tid; index < N ; index += stride) {  // do stride
+        if (d_out_D[index] > d_out_Di[index]) {
+            d_out_D[index] = d_out_Di[index];
+            d_Flag[index] = true;
+        }
+        if (d_out_P[index] != d_out_Pi[index]) {
+            d_out_P[index] = d_out_Pi[index];
+            d_Flag[index] = true;
+        }
+        d_out_Di[index] = d_out_D[index];
+        d_out_Pi[index] = d_out_P[index];
+    }
+}

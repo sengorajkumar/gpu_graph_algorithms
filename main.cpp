@@ -60,5 +60,9 @@ int main(int argc, char **argv) {
     if(mode == "cuda-stride"){
         runBellmanFordOnGPUWithGridStride(file.c_str(), BLOCKS, BLOCK_SIZE, debug);
     }
+    if(mode == "cuda-v3") {
+        runBellmanFordOnGPUV3(file.c_str(), BLOCKS, BLOCK_SIZE, debug);
+
+    }
 
 }

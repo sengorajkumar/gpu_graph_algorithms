@@ -70,8 +70,8 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 ## Bellman Ford GPU Implementation
 Implement and study the performance in three different flavors of the algorithm
 - [x] Version 1 - One thread to each vertex (to relax all outgoing edges of each vertex) - Number of Blocks is determined based on input nodes. More threads & each thread doing less work  
-- [ ] Version 2 - Introduce stride inside kernel. Fixed number of blocks. Less threads and each thread doing more work
-- [ ] Version 3 - Have a boolean flag to check whether to continue till V-1 rounds or terminate early.
+- [x] Version 2 - Introduce stride inside kernel. Fixed number of blocks. Less threads and each thread doing more work
+- [x] Version 3 - Do relaxation for each V[i] only if Flag[i] is set to true. i.e. if V[i] has shorter distance than the previous iteration.
 
 ## References
 - Agarwal, Pankhari, Dutta, Maitreyee - New Approach of Bellman Ford Algorithm on GPU using Compute Unified Design Architecture (CUDA)
