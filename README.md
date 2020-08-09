@@ -74,6 +74,7 @@ Implement and study the performance in three different flavors of the algorithm
 - [x] Version 3 - Do relaxation for each V[i] only if Flag[i] is set to true. i.e. if V[i] has shorter distance than the previous iteration.
 
 ## References
-- Agarwal, Pankhari, Dutta, Maitreyee - New Approach of Bellman Ford Algorithm on GPU using Compute Unified Design Architecture (CUDA)
+- New Approach of Bellman Ford Algorithm on GPU using Compute Unified Design Architecture (CUDA) - Agarwal, Pankhari, Dutta, Maitreyee 
+- Accelerating large graph algorithms on the GPU using CUDA - Pawan Harish and P. J. Narayanan
 - https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
 - https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/
