@@ -1,0 +1,4 @@
+Blocks: 512	Blocksize: 512	Time: 676479
+Blocks: 512	Blocksize: 1024	Time: 674534
+Blocks: 1024	Blocksize: 512	Time: 683379
+Blocks: 1024	Blocksize: 1024	Time: 686964

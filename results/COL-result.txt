@@ -1,0 +1,4 @@
+Blocks: 256	Blocksize: 192	Time: 36828.9
+Blocks: 256	Blocksize: 1024	Time: 37459.4
+Blocks: 1024	Blocksize: 192	Time: 38860.4
+Blocks: 1024	Blocksize: 1024	Time: 39947.8

@@ -72,10 +72,6 @@ printf "\nRunning $opt\n"
 for block in "${blocks[@]}"; do
     for size in "${blocksize[@]}"; do
         result=$(./build/bellman cuda $region $block $size | tail -1)
-<<<<<<< HEAD
         printf "Blocks: $block\tBlocksize: $size\tTime: $result\n" | tee -a ./results/$opt-result.txt
-=======
-        printf "Blocks: $block\tBlocksize: $size\tTime: $result\n" | tee ./results/$opt-result.txt
->>>>>>> 5b1e83a9c5786c3b81d7c90b1f83e3e23ed4b25f
     done
 done
