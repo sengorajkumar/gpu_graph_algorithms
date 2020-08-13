@@ -9,8 +9,10 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
 4. `cd build`
 5. `cmake ../.`
 6. `make` - Builds executable `bellman`
-7. `$ ./bellman seq ../input/simple.gr` - Runs sequential version of bellman ford
-8. `$ ./bellman cuda ../input/simple.gr 1024` - Runs cuda version of bellman ford
+7. `$ ./bellman seq ../input/simple.gr` - Runs sequential version
+8. `$./bellman cuda ../input/USA-road-d.NY.gr 196 1024 0` - Runs cuda implementation version 1
+9. `$./bellman cuda-stride ../input/USA-road-d.NY.gr 196 1024 0` - Runs cuda implementation version 2
+10. `$./bellman cuda-v3 ../input/USA-road-d.NY.gr 196 1024 0` - Runs cuda implementation version 3
 
 ## Implementation Details
 * Folder `sequential` contains base sequential implementation of BellmanFord. 
@@ -54,18 +56,6 @@ Term Project, Parallel Algorithms, Summer 2020, University of Texas, Austin
     - `USA-road-d.NY.gr_E.csv` - Contains E array
     - `USA-road-d.NY.gr_W.csv` - Contains W array
     - `USA-road-d.NY.gr_FROM.csv` & `USA-road-d.NY.gr_TO.csv`- Contains all edges of the graph where source is in FROM and destination vertex is in TO (Will be useful for version 2 stated below)
-    
-| File           |	nodes |	edges|	Time (Milli seconds)| Time(min)	|	TACC command |
-| :---          |   :---    |:---   |:---   |:---   |:---   |
-|USA-road-d.NY      |	264,346	|733,846	|17293.9|	0.29	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.NY.gr 1024`|
-|USA-road-d.COL     |	435,666	|1,057,066|	39291.9|	0.65|	`sbatch run_bellman_cuda.sh ../input/USA-road-d.COL.gr 1024`|
-|USA-road-d.FLA     |	1,070,376|	2,712,798|	229136|	3.82	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.FLA.gr 1024`|
-|USA-road-d.CAL     |	1,890,815	|4,657,742|	764928|	12.75|	`sbatch run_bellman_cuda.sh ../input/USA-road-d.CAL.gr 1024`|
-|USA-road-d.E	    |3,598,623	|8,778,114|	2.88E+06|	47.94	|`sbatch run_bellman_cuda.sh ../input/USA-road-d.E.gr 1024`  |  
-|rand_200k_4m.gr| 200k | 4 million | 225312 | 3.76 | `sbatch run_bellman_cuda.sh ../input/rand_200k_4m.gr 1024`|
-|rand_300k_6m.gr| 300k | 6 million | 561186 | 9.35 | `sbatch run_bellman_cuda.sh ../input/rand_300k_6m.gr 1024`|
-|rand_400k_8m.gr| 400k | 8 million | 1.06E+06 | 17.62 |`sbatch run_bellman_cuda.sh ../input/rand_400k_8m.gr 1024`|
-|rand_100k_10m.gr| 100k | 10 million | 478328 | 7.97 |`sbatch run_bellman_cuda.sh ../input/rand_100k_10m.gr 1024`|
 
 ## Bellman Ford GPU Implementation
 Implement and study the performance in three different flavors of the algorithm
@@ -73,7 +63,14 @@ Implement and study the performance in three different flavors of the algorithm
 - [x] Version 2 - Introduce stride inside kernel. Fixed number of blocks. Less threads and each thread doing more work
 - [x] Version 3 - Do relaxation for each V[i] only if Flag[i] is set to true. i.e. if V[i] has shorter distance than the previous iteration.
 
+## Results
+
+![Performance Analysis](https://user-images.githubusercontent.com/48846576/90195833-1ffe2580-dd90-11ea-8dfd-54e0000483b8.png)    
+![Graph_results](https://user-images.githubusercontent.com/48846576/90195829-1e346200-dd90-11ea-9205-437722d3789b.png)
+    
+
 ## References
+- Shortest Paths Algorithms: Theory And ExperimentalEvaluation. Boris Cherkassky, Andrew V. Goldberg and Tomasz Radzik
 - New Approach of Bellman Ford Algorithm on GPU using Compute Unified Design Architecture (CUDA) - Agarwal, Pankhari, Dutta, Maitreyee 
 - Accelerating large graph algorithms on the GPU using CUDA - Pawan Harish and P. J. Narayanan
 - https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
