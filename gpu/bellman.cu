@@ -294,7 +294,7 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
-    cout << "Running Bellman Ford on GPU - Version 2 with Grid Stride Kernel" << endl;
+    cout << "Running Bellman Ford on GPU - Version 3 with Grid Stride Kernel + relax only when needed" << endl;
     cudaEventRecord(start, 0);
 
     std::vector<int> V, I, E, W;
