@@ -28,7 +28,7 @@ Term Project, Parallel Algorithms, Dr.Vijay Garg, Summer 2020, University of Tex
 <img src="https://user-images.githubusercontent.com/48846576/89080545-cb4dba00-d34e-11ea-8dbd-6e7f4b897bb5.png" height="250" width="300"/>
 </div>
 
-###### CSR Representation Graph:
+###### CSR Representation of the Graph:
 <div>
 <img src="https://user-images.githubusercontent.com/48846576/89236974-ac9e2c00-d5b7-11ea-9996-dca858eb0535.jpg" height="250" width="400"/>
 </div>
