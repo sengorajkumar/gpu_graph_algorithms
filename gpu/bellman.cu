@@ -110,7 +110,7 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
             cout<< "***** round = " << round << " ******* " << endl;
         }
         relax<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
-        updateDistance<<<BLOCKS, BLOCK_SIZE>>>(N, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
+        updateDistance<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
     }
 
     cudaEventRecord(stop, 0);
@@ -233,7 +233,7 @@ int runBellmanFordOnGPUWithGridStride(const char *file, int blocks, int blockSiz
             cout<< "***** round = " << round << " ******* " << endl;
         }
         relaxWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
-        updateDistanceWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(N, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
+        updateDistanceWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
     }
 
     cudaEventRecord(stop, 0);
@@ -361,7 +361,7 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
             cout<< "***** round = " << round << " ******* " << endl;
         }
         relaxWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi, d_Flag);
-        updateDistanceWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(N, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi, d_Flag);
+        updateDistanceWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi, d_Flag);
     }
 
     cudaEventRecord(stop, 0);
