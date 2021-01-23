@@ -1,5 +1,7 @@
 # Accelerating Bellman-Ford Single Source Shortest Path Algorithm on GPU using CUDA 
-Term Project, Parallel Algorithms, Dr.Vijay Garg, Summer 2020, University of Texas, Austin
+Term Project, Parallel Algorithms, Dr.Vijay Garg, Summer 2020, The University of Texas, Austin
+
+https://towardsdatascience.com/bellman-ford-single-source-shortest-path-algorithm-on-gpu-using-cuda-a358da20144b
 
 ## Compiling the project
 
