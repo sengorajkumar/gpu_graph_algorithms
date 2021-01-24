@@ -18,8 +18,8 @@ __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E,
             }
 
             if (newDist < dv) {
-                atomicExch(&d_out_Di[d_in_E[j]],newDist);
-                atomicExch(&d_out_Pi[d_in_E[j]],u);
+                atomicMin(&d_out_Di[d_in_E[j]],newDist);
+                atomicMin(&d_out_Pi[d_in_E[j]],u);
             }
         }
     }
@@ -48,8 +48,8 @@ __global__ void relaxWithGridStride(int N, int MAX_VAL, int *d_in_V, int *d_in_I
             //printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
 
             if (newDist < dv) {
-                atomicExch(&d_out_Di[d_in_E[j]],newDist);
-                atomicExch(&d_out_Pi[d_in_E[j]],u);
+                atomicMin(&d_out_Di[d_in_E[j]],newDist);
+                atomicMin(&d_out_Pi[d_in_E[j]],u);
             }
         }
     }
@@ -201,8 +201,8 @@ __global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in
                 //printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
 
                 if (newDist < dv) {
-                    atomicExch(&d_out_Di[d_in_E[j]], newDist);
-                    atomicExch(&d_out_Pi[d_in_E[j]], u);
+                    atomicMin(&d_out_Di[d_in_E[j]], newDist);
+                    atomicMin(&d_out_Pi[d_in_E[j]], u);
                 }
             }
         }
