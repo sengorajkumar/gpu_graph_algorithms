@@ -5,6 +5,7 @@ int main(int argc, char **argv) {
         cout << "Usage : ./bellman MODE FILE BLOCK_SIZE DEBUG" << endl;
         cout << "MODE - seq / cuda \n"
                 "FILE - Input file \n"
+                "BLOCKS - Number of blocks per grid for cuda\n"
                 "BLOCK_SIZE - Number of threads per block for cuda \n"
                 "DEBUG - 1 or 0 to enable/disable extended debug messages on console\n"
                 "Program expects these CSV files based on FILE thats passed in the argument\n"
@@ -17,9 +18,6 @@ int main(int argc, char **argv) {
     }
     std::string mode = argv[1];
     std::string file;
-    int debug;
-    int BLOCK_SIZE;
-    int BLOCKS;
     if(argv[2] != NULL){
         file = argv[2];
         //Check if all CSR files are present
@@ -32,19 +30,10 @@ int main(int argc, char **argv) {
         }
 
     }
-    if(argv[3] != NULL){
-        BLOCKS = atoi(argv[3]);
-    }
-    if(argv[4] != NULL){
-        BLOCK_SIZE = atoi(argv[4]);
-    }
-    if(argv[5] != NULL){
-        debug = atoi(argv[5]);
-    }
 
-    (BLOCKS == 0) ? 4 : BLOCKS; // Set default to 4 blocks
-    (BLOCK_SIZE == 0) ? 512 : BLOCK_SIZE; // Set default to 512 threads
-    (debug == 0) ? 0 : 1;
+    int BLOCKS = argc > 3 ? atoi(argv[3]) : 4;
+    int BLOCK_SIZE = argc > 4 ? atoi(argv[4]) : 512;
+    int debug = argc > 5 ? atoi(argv[5]) : 0;
 
     if(mode == "seq") {
         // Reference https://www.geeksforgeeks.org/measure-execution-time-function-cpp/
