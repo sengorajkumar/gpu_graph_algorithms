@@ -102,7 +102,8 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     //But in the case of DIMACS vertex start from 1. so in the relax kernel index of the destination vertex is needed to update the D array.
     //E.size() - because we need to replace each E[i] with its index of V[i]
     //0, V.size()-1 - for binary search of V array with each E[i] to find index
-    updateIndexOfEdges<<<BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, V.size()-1);
+    INIT_BLOCKS = (E.size() + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    updateIndexOfEdges<<<INIT_BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, V.size()-1);
 
     // Bellman ford
     for (int round = 1; round < V.size(); round++) {
