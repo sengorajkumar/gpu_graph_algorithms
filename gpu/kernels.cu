@@ -1,11 +1,10 @@
 #include "kernels.cuh"
 
-__global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi) {
+__global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di) {
     unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
 
     if (index < N - 1) { // do index < N - 1 because nth element of I array points to the end of E array
         for (int j = d_in_I[index]; j < d_in_I[index + 1]; j++) {
-            int u = d_in_V[index];
             int w = d_in_W[j];
             int du = d_out_D[index];
             int dv = d_out_D[d_in_E[j]];
@@ -18,13 +17,13 @@ __global__ void relax(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E,
             }
 
             if (newDist < dv) {
-                atomicExch(&d_out_Di[d_in_E[j]],newDist);
-                atomicExch(&d_out_Pi[d_in_E[j]],u);
+                atomicMin(&d_out_Di[d_in_E[j]],newDist);
             }
         }
     }
 }
-__global__ void relaxWithGridStride(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi){
+
+__global__ void relaxWithGridStride(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di){
     unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
     unsigned int stride = blockDim.x * gridDim.x;
 
@@ -33,8 +32,6 @@ __global__ void relaxWithGridStride(int N, int MAX_VAL, int *d_in_V, int *d_in_I
     //}
     for (int index = tid; index < N - 1; index += stride){  // do index < N - 1 because nth element of I array points to the end of E array
         for (int j = d_in_I[index]; j < d_in_I[index + 1]; j++) {
-            int u = d_in_V[index];
-            //int v = d_in_V[d_in_E[j]];
             int w = d_in_W[j];
             int du = d_out_D[index];
             int dv = d_out_D[d_in_E[j]];
@@ -48,28 +45,24 @@ __global__ void relaxWithGridStride(int N, int MAX_VAL, int *d_in_V, int *d_in_I
             //printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
 
             if (newDist < dv) {
-                atomicExch(&d_out_Di[d_in_E[j]],newDist);
-                atomicExch(&d_out_Pi[d_in_E[j]],u);
+                atomicMin(&d_out_Di[d_in_E[j]],newDist);
             }
         }
     }
 }
-__global__ void updateDistance(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi) {
+
+__global__ void updateDistance(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di) {
     unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
     if (index < N) {
 
         if (d_out_D[index] > d_out_Di[index]) {
             d_out_D[index] = d_out_Di[index];
         }
-        if (d_out_P[index] != d_out_Pi[index]) {
-            d_out_P[index] = d_out_Pi[index];
-        }
         d_out_Di[index] = d_out_D[index];
-        d_out_Pi[index] = d_out_P[index];
     }
 }
 
-__global__ void updateDistanceWithGridStride(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi) {
+__global__ void updateDistanceWithGridStride(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di) {
     unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
     unsigned int stride = blockDim.x * gridDim.x;
 
@@ -77,11 +70,7 @@ __global__ void updateDistanceWithGridStride(int N, int *d_in_V, int *d_in_I, in
             if (d_out_D[index] > d_out_Di[index]) {
                 d_out_D[index] = d_out_Di[index];
             }
-            if (d_out_P[index] != d_out_Pi[index]) {
-                d_out_P[index] = d_out_Pi[index];
-            }
             d_out_Di[index] = d_out_D[index];
-            d_out_Pi[index] = d_out_P[index];
     }
 }
 
@@ -140,10 +129,12 @@ __global__ void updateIndexOfEdgesWithGridStide(int N, int *d_in_V, int *d_in_E,
 __global__ void initializeArray(const int N, int *p, const int val, bool sourceDifferent, const int source, const int sourceVal){
     int index = threadIdx.x + blockDim.x * blockIdx.x;
 
-    p[index] = val;
-    if(sourceDifferent){
-        if(index == source) {
-            p[index] = sourceVal;
+    if (index < N) {
+        p[index] = val;
+        if(sourceDifferent){
+            if(index == source) {
+                p[index] = sourceVal;
+            }
         }
     }
 }
@@ -179,7 +170,7 @@ __global__ void initializeBooleanArrayWithGridStride(const int N, bool *p, const
 }
 
 // Only relax the outgoing edges if the vertex has lower distance based on the Flag
-__global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P,  int *d_out_Pi, bool *d_Flag){
+__global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, bool *d_Flag){
     unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
     unsigned int stride = blockDim.x * gridDim.x;
 
@@ -187,7 +178,6 @@ __global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in
         if (d_Flag[index]) {
             d_Flag[index] = false;
             for (int j = d_in_I[index]; j < d_in_I[index + 1]; j++) {
-                int u = d_in_V[index];
                 int w = d_in_W[j];
                 int du = d_out_D[index];
                 int dv = d_out_D[d_in_E[j]];
@@ -201,8 +191,7 @@ __global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in
                 //printf("Index = %d, w=%d, du =%d, dv=%d,  -- du + w = %d\n", index, w, du , dv, du + w);
 
                 if (newDist < dv) {
-                    atomicExch(&d_out_Di[d_in_E[j]], newDist);
-                    atomicExch(&d_out_Pi[d_in_E[j]], u);
+                    atomicMin(&d_out_Di[d_in_E[j]], newDist);
                 }
             }
         }
@@ -210,7 +199,7 @@ __global__ void relaxWithGridStrideV3(int N, int MAX_VAL, int *d_in_V, int *d_in
 }
 
 // Sets the flag to true if distance of vertex is changed hence all outgoing edges need to be relaxed in the next round
-__global__ void updateDistanceWithGridStrideV3(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, int *d_out_P, int *d_out_Pi, bool *d_Flag) {
+__global__ void updateDistanceWithGridStrideV3(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_Di, bool *d_Flag) {
     unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
     unsigned int stride = blockDim.x * gridDim.x;
 
@@ -219,11 +208,40 @@ __global__ void updateDistanceWithGridStrideV3(int N, int *d_in_V, int *d_in_I, 
             d_out_D[index] = d_out_Di[index];
             d_Flag[index] = true;
         }
-        if (d_out_P[index] != d_out_Pi[index]) {
-            d_out_P[index] = d_out_Pi[index];
-            d_Flag[index] = true;
-        }
         d_out_Di[index] = d_out_D[index];
-        d_out_Pi[index] = d_out_P[index];
+    }
+}
+
+// Update d_out_P when Bellman-Ford algorithm is completed (for version 1)
+__global__ void updatePred(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_P) {
+    unsigned int index = threadIdx.x + (blockDim.x * blockIdx.x);
+    if (index < N) {
+        for (int j = d_in_I[index]; j < d_in_I[index+1]; ++j) {
+            int u = d_in_V[index];
+            int w = d_in_W[j];
+            int dis_u = d_out_D[index];
+            int dis_v = d_out_D[d_in_E[j]];
+            if (dis_v == dis_u + w) {
+                atomicMin(&d_out_P[d_in_E[j]], u);
+            }
+        }
+    }
+}
+
+// Update d_out_P when Bellman-Ford algorithm is completed (for version 2 and 3)
+__global__ void updatePredWithGridStride(int N, int *d_in_V, int *d_in_I, int *d_in_E, int *d_in_W, int *d_out_D, int *d_out_P) {
+    unsigned int tid = threadIdx.x + (blockDim.x * blockIdx.x);
+    unsigned int stride = blockDim.x * gridDim.x;
+
+    for (int index = tid; index < N; index += stride) {
+        for (int j = d_in_I[index]; j < d_in_I[index+1]; ++j) {
+            int u = d_in_V[index];
+            int w = d_in_W[j];
+            int dis_u = d_out_D[index];
+            int dis_v = d_out_D[d_in_E[j]];
+            if (dis_v == dis_u + w) {
+                atomicMin(&d_out_P[d_in_E[j]], u);
+            }
+        }
     }
 }

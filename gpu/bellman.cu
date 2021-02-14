@@ -73,7 +73,6 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     int *d_out_D; // Final shortest distance
     int *d_out_Di; // Used in keep track of the distance during one single execution of the kernel
     int *d_out_P; // Final parent
-    int *d_out_Pi; // Used in keep track of the parent during one single execution of the kernel
 
     //allocate memory
     cudaMalloc((void**) &d_in_V, V.size() *sizeof(int));
@@ -84,7 +83,6 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     cudaMalloc((void**) &d_out_D, V.size() *sizeof(int));
     cudaMalloc((void**) &d_out_Di, V.size() *sizeof(int));
     cudaMalloc((void**) &d_out_P, V.size() *sizeof(int));
-    cudaMalloc((void**) &d_out_Pi, V.size() *sizeof(int));
 
     //copy to device memory
     cudaMemcpy(d_in_V, V.data(), V.size() *sizeof(int), cudaMemcpyHostToDevice);
@@ -94,24 +92,25 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
 
     int INIT_BLOCKS = (V.size() + BLOCK_SIZE - 1) / BLOCK_SIZE;
     initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_D, MAX_VAL, true, 0, 0);
-    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, -1, true, 0, 0);
+    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, MAX_VAL, true, 0, 0);
     initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Di, MAX_VAL, true, 0, 0);
-    initializeArray<<<INIT_BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Pi, -1, true, 0, 0);
 
     //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0.
     //But in the case of DIMACS vertex start from 1. so in the relax kernel index of the destination vertex is needed to update the D array.
     //E.size() - because we need to replace each E[i] with its index of V[i]
     //0, V.size()-1 - for binary search of V array with each E[i] to find index
-    updateIndexOfEdges<<<BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, V.size()-1);
+    INIT_BLOCKS = (E.size() + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    updateIndexOfEdges<<<INIT_BLOCKS, BLOCK_SIZE>>>(E.size(), d_in_V, d_in_E, 0, V.size()-1);
 
     // Bellman ford
     for (int round = 1; round < V.size(); round++) {
         if(DEBUG){
             cout<< "***** round = " << round << " ******* " << endl;
         }
-        relax<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
-        updateDistance<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
+        relax<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di);
+        updateDistance<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di);
     }
+    updatePred<<<BLOCKS, BLOCK_SIZE>>> (V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_P);
 
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
@@ -154,7 +153,6 @@ int runBellmanFordOnGPU(const char *file, int blockSize, int debug) {
     cudaFree(d_out_D);
     cudaFree(d_out_P);
     cudaFree(d_out_Di);
-    cudaFree(d_out_Pi);
     return 0;
 }
 
@@ -197,7 +195,6 @@ int runBellmanFordOnGPUWithGridStride(const char *file, int blocks, int blockSiz
     int *d_out_D; // Final shortest distance
     int *d_out_Di; // Used in keep track of the distance during one single execution of the kernel
     int *d_out_P; // Final parent
-    int *d_out_Pi; // Used in keep track of the parent during one single execution of the kernel
 
     //allocate memory
     cudaMalloc((void**) &d_in_V, V.size() *sizeof(int));
@@ -208,7 +205,6 @@ int runBellmanFordOnGPUWithGridStride(const char *file, int blocks, int blockSiz
     cudaMalloc((void**) &d_out_D, V.size() *sizeof(int));
     cudaMalloc((void**) &d_out_Di, V.size() *sizeof(int));
     cudaMalloc((void**) &d_out_P, V.size() *sizeof(int));
-    cudaMalloc((void**) &d_out_Pi, V.size() *sizeof(int));
 
     //copy to device memory
     cudaMemcpy(d_in_V, V.data(), V.size() *sizeof(int), cudaMemcpyHostToDevice);
@@ -217,9 +213,8 @@ int runBellmanFordOnGPUWithGridStride(const char *file, int blocks, int blockSiz
     cudaMemcpy(d_in_W, W.data(), W.size() *sizeof(int), cudaMemcpyHostToDevice);
 
     initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_D, MAX_VAL, true, 0, 0);
-    initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, -1, true, 0, 0);
+    initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, MAX_VAL, true, 0, 0);
     initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Di, MAX_VAL, true, 0, 0);
-    initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Pi, -1, true, 0, 0);
 
     //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0.
     //But in the case of DIMACS vertex start from 1. so in the relax kernel index of the destination vertex is needed to update the D array.
@@ -232,9 +227,10 @@ int runBellmanFordOnGPUWithGridStride(const char *file, int blocks, int blockSiz
         if(DEBUG){
             cout<< "***** round = " << round << " ******* " << endl;
         }
-        relaxWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
-        updateDistanceWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi);
+        relaxWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di);
+        updateDistanceWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di);
     }
+    updatePredWithGridStride<<<BLOCKS, BLOCK_SIZE>>> (V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_P);
 
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
@@ -277,7 +273,6 @@ int runBellmanFordOnGPUWithGridStride(const char *file, int blocks, int blockSiz
     cudaFree(d_out_D);
     cudaFree(d_out_P);
     cudaFree(d_out_Di);
-    cudaFree(d_out_Pi);
     return 0;
 }
 
@@ -322,7 +317,6 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
     int *d_out_D; // Final shortest distance
     int *d_out_Di; // Used in keep track of the distance during one single execution of the kernel
     int *d_out_P; // Final parent
-    int *d_out_Pi; // Used in keep track of the parent during one single execution of the kernel
     bool *d_Flag;
 
     //allocate memory
@@ -334,7 +328,6 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
     cudaMalloc((void**) &d_out_D, V.size() *sizeof(int));
     cudaMalloc((void**) &d_out_Di, V.size() *sizeof(int));
     cudaMalloc((void**) &d_out_P, V.size() *sizeof(int));
-    cudaMalloc((void**) &d_out_Pi, V.size() *sizeof(int));
     cudaMalloc((void**) &d_Flag, V.size() *sizeof(bool));
 
     //copy to device memory
@@ -344,9 +337,8 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
     cudaMemcpy(d_in_W, W.data(), W.size() *sizeof(int), cudaMemcpyHostToDevice);
 
     initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_D, MAX_VAL, true, 0, 0);
-    initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, -1, true, 0, 0);
+    initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_P, MAX_VAL, true, 0, 0);
     initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Di, MAX_VAL, true, 0, 0);
-    initializeArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_out_Pi, -1, true, 0, 0);
     initializeBooleanArrayWithGridStride<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_Flag, false, true, 0, true); // set all elements to false except source which is V[0]
 
     //Do binary search to find index of each element in E. This won't be necessary if the vertex starts from 0.
@@ -360,9 +352,10 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
         if(DEBUG){
             cout<< "***** round = " << round << " ******* " << endl;
         }
-        relaxWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi, d_Flag);
-        updateDistanceWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_out_P, d_out_Pi, d_Flag);
+        relaxWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(N, MAX_VAL, d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_Flag);
+        updateDistanceWithGridStrideV3<<<BLOCKS, BLOCK_SIZE>>>(V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_Di, d_Flag);
     }
+    updatePredWithGridStride<<<BLOCKS, BLOCK_SIZE>>> (V.size(), d_in_V, d_in_I, d_in_E, d_in_W, d_out_D, d_out_P);
 
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
@@ -405,6 +398,5 @@ int runBellmanFordOnGPUV3(const char *file, int blocks, int blockSize, int debug
     cudaFree(d_out_D);
     cudaFree(d_out_P);
     cudaFree(d_out_Di);
-    cudaFree(d_out_Pi);
     return 0;
 }
